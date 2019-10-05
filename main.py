@@ -9,7 +9,7 @@ logging.basicConfig(format='[%(filename)s:%(lineno)d] %(message)s', level=loggin
 logger = logging.getLogger(__name__)
 
 SCREEN_WIDTH = 1200
-SCREEN_HEIGHT =900
+SCREEN_HEIGHT = 900
 MARGIN = 20
 SCREEN_TITLE = "Aliens and Donuts"
 NUM_DONUTS = 10
@@ -24,6 +24,10 @@ BOSS_HP = 500
 KILL_SCORE = 2000
 HIT_SCORE = 100
 
+PLAYER_SCALE = 1
+DONUT_SCALE = 1.25
+BOSS_SCALE = 2.0
+BULLET_SCALE = 0.4
 # goal of game is to move an alien around via keyboard, shooting with spacebar at sky donuts
 
 class Bullet(arcade.Sprite):
@@ -34,7 +38,7 @@ class Bullet(arcade.Sprite):
             velocity: (dx, dy) tuple
             damage: int (or float)
         '''
-        super().__init__("images/bullet.png", 0.4)
+        super().__init__("images/bullet.png", BULLET_SCALE)
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
         self.damage = damage
@@ -49,7 +53,7 @@ class Bullet(arcade.Sprite):
 
 class Player(arcade.Sprite):
     def __init__(self):
-        super().__init__("images/alien.png", 1)
+        super().__init__("images/alien.png", PLAYER_SCALE)
         #super is whatever arcade.sprite needs to initialize itself, do it
         (self.center_x, self.center_y) = STARTING_LOCATION
         self.moving_left = False
@@ -63,7 +67,7 @@ class Donut(arcade.Sprite):
         '''
         self.donuts = ["images/donut1.png", "images/donut2.png","images/donut3.png", "images/donut4.png", "images/donut5.png"]
         donut = random.choice(self.donuts)
-        super().__init__(donut, 1.25)
+        super().__init__(donut, DONUT_SCALE)
         self.hp = ENEMY_HP
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
@@ -84,7 +88,7 @@ class Second_level_donut(arcade.Sprite):
     def __init__(self, position, velocity):
         self.donuts = ["images/donut1.png", "images/donut2.png","images/donut3.png", "images/donut4.png", "images/donut5.png"]
         donut = random.choice(self.donuts)
-        super().__init__(donut, 1.25)
+        super().__init__(donut, DONUT_SCALE)
         self.hp = ENEMY_HP
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
@@ -104,8 +108,8 @@ class Second_level_donut(arcade.Sprite):
 class Third_level_donut(arcade.Sprite):
     def __init__(self, position, velocity):
         self.donuts = ["images/boss.png"]
-        donut = self.donuts
-        super().__init__(donut, 2.0)
+        donut = self.donuts[0]
+        super().__init__(donut, BOSS_SCALE)
         self.hp = BOSS_HP
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
@@ -174,16 +178,17 @@ class Window(arcade.Window):
     #goal is to reach this screen and have the words appear over the normal background
 
         arcade.draw_text(f"Congrats! You've won!", 600, 450, arcade.color.WHITE, 60)
-    pass
 
-    def end(self)
+
+    def end(self):
         arcade.draw_text(f"You lose", 600, 450, arcade.color.WHITE, 60)
-    pass
 
 
     def setup(self):
         
         self.level = 1
+        self.won = False
+        self.died = False
 
         #sprite lists
         self.player_list = arcade.SpriteList()
@@ -208,11 +213,17 @@ class Window(arcade.Window):
 
         arcade.draw_texture_rectangle(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
 
-        # Draw all the sprites.
-        self.donut_list.draw()
-        self.player_list.draw()
-        self.bullet_list.draw()
+        if self.won:	             
+            self.winner()		         
+        elif self.died:	         
+            self.end()
+        else:
+             # Draw all the sprites.
+             self.donut_list.draw()
+             self.player_list.draw()
+             self.bullet_list.draw()
 
+ 
         # Render the text
         arcade.draw_text(f"Score: {self.score}", 10, 15, arcade.color.WHITE, 22)
 
@@ -271,23 +282,19 @@ class Window(arcade.Window):
 
         self.bullet_list.update()
 
-    if len(self.donut_list) == 0 and self.level == 1:
-        self.level += 1
-        self.level_2()
-    elif len(self.donut_list) == 0 and self.level == 2:
-        self.level += 1
-        self.level_3()
+        if len(self.donut_list) == 0 and self.level == 1:
+            self.level += 1
+            self.level_2()
+        elif len(self.donut_list) == 0 and self.level == 2:
+            self.level += 1
+            self.level_3()
 
-    elif len(self.donut_list) == 0 and self.level == 3:
-        self.winner()
+        elif len(self.donut_list) == 0 and self.level == 3:
+            self.won = True
 
-    else len(self.donut_list) != 0 and self.level == 3:
-        self.end()
-
-
-
-
-    
+        #However I lose
+        if True == False:
+            self.died = True
 
 
 def main():
