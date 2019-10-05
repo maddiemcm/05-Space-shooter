@@ -13,8 +13,7 @@ SCREEN_HEIGHT =900
 MARGIN = 20
 SCREEN_TITLE = "Aliens and Donuts"
 NUM_DONUTS = 10
-NUM_DONUTS_2 = 3
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 6
 INITIAL_VELOCITY = 2
 FRICTION = 0.9
 
@@ -104,7 +103,7 @@ class Second_level_donut(arcade.Sprite):
 
 class Third_level_donut(arcade.Sprite):
     def __init__(self, position, velocity):
-        self.donuts = ["Boss_donut.png"]
+        self.donuts = ["images/boss.png"]
         donut = self.donuts
         super().__init__(donut, 2.0)
         self.hp = BOSS_HP
@@ -128,13 +127,11 @@ class Window(arcade.Window):
 
     def __init__(self, width, height, title):
 
-        # Call the parent class's init function
         super().__init__(width, height, title)
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
         
-        # Make the mouse disappear when it is over the window.
-        # So we just see our object, not the pointer.
+
         self.set_mouse_visible(False)
 
         self.background = None 
@@ -163,14 +160,26 @@ class Window(arcade.Window):
 
 
     def level_3(self):
-        for i in range(NUM_DONUTS_2):
-            x = 400 * (1 + 2)
+        for i in range(3):
+            x = 400 * (i+1.0) 
             y = 875
-            dx = INITIAL_VELOCITY
-            dy = INITIAL_VELOCITY
+            dx = 2
+            dy = 2
             donut = Third_level_donut((x,y), (dx,dy))
 
             self.donut_list.append(donut)
+
+
+    def winner(self):
+    #goal is to reach this screen and have the words appear over the normal background
+
+        arcade.draw_text(f"Congrats! You've won!", 600, 450, arcade.color.WHITE, 60)
+    pass
+
+    def end(self)
+        arcade.draw_text(f"You lose", 600, 450, arcade.color.WHITE, 60)
+    pass
+
 
     def setup(self):
         
@@ -214,6 +223,7 @@ class Window(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
+
         if key == arcade.key.LEFT:
             self.player.moving_left = True
         elif key == arcade.key.RIGHT:
@@ -221,11 +231,12 @@ class Window(arcade.Window):
         elif key == arcade.key.SPACE:
             x = self.player.center_x
             y = self.player.center_y + 15
-            bullet = Bullet((x,y),(0,15),BULLET_DAMAGE)
+            bullet = Bullet((x,y),(0,13),BULLET_DAMAGE)
             self.bullet_list.append(bullet)
 
     def on_key_release(self, key, modifiers):
         """ Called whenever a user releases a key. """
+
         if key == arcade.key.LEFT:
             self.player.moving_left = False
         if key == arcade.key.RIGHT:
@@ -236,11 +247,11 @@ class Window(arcade.Window):
 
         if self.player.moving_left:
             self.player.center_x = self.player.center_x - MOVEMENT_SPEED
-            if self.player.center_x <= 0:
+        if self.player.center_x <= 0:
                 self.player.center_x = 0
         if self.player.moving_right:
             self.player.center_x = self.player.center_x + MOVEMENT_SPEED
-            if self.player.center_x >= SCREEN_WIDTH:
+        if self.player.center_x >= SCREEN_WIDTH:
                 self.player.center_x = SCREEN_WIDTH
 
         self.donut_list.update()
@@ -258,15 +269,24 @@ class Window(arcade.Window):
                 else:
                     self.score = self.score + HIT_SCORE
 
-        if len(self.donut_list) == 0 and self.level == 1:
-            self.level += 1
-            self.level_2()
-        elif len(self.donut_list) == 0 and self.level == 2:
-            self.level += 1
-            self.level_3()
-
-
         self.bullet_list.update()
+
+    if len(self.donut_list) == 0 and self.level == 1:
+        self.level += 1
+        self.level_2()
+    elif len(self.donut_list) == 0 and self.level == 2:
+        self.level += 1
+        self.level_3()
+
+    elif len(self.donut_list) == 0 and self.level == 3:
+        self.winner()
+
+    else len(self.donut_list) != 0 and self.level == 3:
+        self.end()
+
+
+
+
     
 
 
