@@ -307,13 +307,13 @@ class Window(arcade.Window):
 
         self.enemy_bullet_list.update()
 
-        for e in self.enemy_list:
+        for e in self.donut_list:
 
             if random.randrange(200) == 0:
-                enemy_bullet = Bullet((x,y),(0,14),BULLET_DAMAGE)
+                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
                 enemy_bullet.center_x = donut.center_x
                 enemy_bullet.angle = -180
-                enemy_bullet.top = enemy.bottom
+                enemy_bullet.top = donut.bottom
                 self.bullet_list.append(enemy_bullet)
 
         for bullet in self.enemy_bullet_list:
