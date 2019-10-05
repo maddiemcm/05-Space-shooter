@@ -189,7 +189,7 @@ class Window(arcade.Window):
         for i in range(3):
             x = 400 * (i+1.0) 
             y = 875
-            dx = 2
+            dx = 0
             dy = 2
             donut = Third_level_donut((x,y), (dx,dy))
 
@@ -307,8 +307,7 @@ class Window(arcade.Window):
 
         self.enemy_bullet_list.update()
 
-        for e in self.donut_list:
-                
+        for p in self.player_list:
             damage = arcade.check_for_collision_with_list(p,self.enemy_bullet_list)
             for d in damage: 
                 p.hp = p.hp - d.damage
@@ -319,16 +318,13 @@ class Window(arcade.Window):
                 else:
                     self.alive = True
 
+        
         if random.randrange(200) == 0:
                 enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
                 enemy_bullet.center_x = donut.center_x
-                enemy_bullet.angle = -180
                 enemy_bullet.top = donut.bottom
                 self.bullet_list.append(enemy_bullet)
 
-        for bullet in self.enemy_bullet_list:
-            if bullet.top < 0:
-                bullet.kill()
             
         self.enemy_bullet_list.update()
 
