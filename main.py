@@ -195,10 +195,10 @@ class Window(arcade.Window):
 
                     
         if random.randrange(200) == 0:
-                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
-                enemy_bullet.center_x = donut.center_x
-                enemy_bullet.top = donut.bottom
-                self.bullet_list.append(enemy_bullet)
+            enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
+            enemy_bullet.center_x = donut.center_x
+            enemy_bullet.top = donut.bottom
+            self.bullet_list.append(enemy_bullet)
 
             self.donut_list.append(donut)
 
@@ -321,9 +321,7 @@ class Window(arcade.Window):
                 d.kill()
                 if p.hp < 0:
                     p.kill()
-                    self.alive = False
-                else:
-                    self.alive = True
+                    self.died = True
 
             
         self.enemy_bullet_list.update()
