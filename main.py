@@ -21,16 +21,38 @@ STARTING_LOCATION = (600,75)
 BULLET_DAMAGE = 50
 ENEMY_HP = 150
 BOSS_HP = 500
+PLAYER_HP = 1000
 KILL_SCORE = 2000
 HIT_SCORE = 100
 
 PLAYER_SCALE = 1
 DONUT_SCALE = 1.25
-BOSS_SCALE = 2.0
+BOSS_SCALE = 1.25
 BULLET_SCALE = 0.4
 # goal of game is to move an alien around via keyboard, shooting with spacebar at sky donuts
 
 class Bullet(arcade.Sprite):
+    def __init__(self, position, velocity, damage):
+        ''' 
+        initializes the bullet
+        Parameters: position: (x,y) tuple
+            velocity: (dx, dy) tuple
+            damage: int (or float)
+        '''
+        super().__init__("images/bullet.png", BULLET_SCALE)
+        (self.center_x, self.center_y) = position
+        (self.dx, self.dy) = velocity
+        self.damage = damage
+        #makes damage an attribute of the bullet
+
+    def update(self):
+        '''
+        Moves the bullet
+        '''
+        self.center_x += self.dx
+        self.center_y += self.dy
+
+class Enemy_Bullet(arcade.Sprite):
     def __init__(self, position, velocity, damage):
         ''' 
         initializes the bullet
@@ -194,6 +216,7 @@ class Window(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.donut_list = arcade.SpriteList()
+        self.enemy_bullet_list = arcade.SpriteList()
 
         #set up the player
         self.score = 0
@@ -222,7 +245,7 @@ class Window(arcade.Window):
              self.donut_list.draw()
              self.player_list.draw()
              self.bullet_list.draw()
-
+             self.enemy_bullet_list.draw()
  
         # Render the text
         arcade.draw_text(f"Score: {self.score}", 10, 15, arcade.color.WHITE, 22)
@@ -230,7 +253,6 @@ class Window(arcade.Window):
         arcade.draw_text(f"Level: {self.level}", 10, 45, arcade.color.WHITE, 22)
  
         arcade.draw_text(f"ALIENS VS. DONUTS", 945, 15, arcade.color.WHITE, 22)
-
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
@@ -242,7 +264,7 @@ class Window(arcade.Window):
         elif key == arcade.key.SPACE:
             x = self.player.center_x
             y = self.player.center_y + 15
-            bullet = Bullet((x,y),(0,13),BULLET_DAMAGE)
+            bullet = Bullet((x,y),(0,14),BULLET_DAMAGE)
             self.bullet_list.append(bullet)
 
     def on_key_release(self, key, modifiers):
@@ -281,6 +303,24 @@ class Window(arcade.Window):
                     self.score = self.score + HIT_SCORE
 
         self.bullet_list.update()
+
+        self.enemy_bullet_list.update()
+        for p in self.player_list:
+            p.update()
+
+            damage = arcade.check_for_collision_with_list(p,self.enemy_bullet_list)
+            for d in damage: 
+                p.hp = p.hp - d.damage
+                d.kill()
+                if p.hp < 0:
+                    p.kill()
+                    self.alive = False
+                else:
+                    self.alive = True
+            
+        self.enemy_bullet_list.update()
+
+
 
         if len(self.donut_list) == 0 and self.level == 1:
             self.level += 1
