@@ -308,17 +308,6 @@ class Window(arcade.Window):
         self.enemy_bullet_list.update()
 
         for e in self.donut_list:
-
-            if random.randrange(200) == 0:
-                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
-                enemy_bullet.center_x = donut.center_x
-                enemy_bullet.angle = -180
-                enemy_bullet.top = donut.bottom
-                self.bullet_list.append(enemy_bullet)
-
-        for bullet in self.enemy_bullet_list:
-            if bullet.top < 0:
-                bullet.kill()
                 
             damage = arcade.check_for_collision_with_list(p,self.enemy_bullet_list)
             for d in damage: 
@@ -329,6 +318,17 @@ class Window(arcade.Window):
                     self.alive = False
                 else:
                     self.alive = True
+
+        if random.randrange(200) == 0:
+                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
+                enemy_bullet.center_x = donut.center_x
+                enemy_bullet.angle = -180
+                enemy_bullet.top = donut.bottom
+                self.bullet_list.append(enemy_bullet)
+
+        for bullet in self.enemy_bullet_list:
+            if bullet.top < 0:
+                bullet.kill()
             
         self.enemy_bullet_list.update()
 
