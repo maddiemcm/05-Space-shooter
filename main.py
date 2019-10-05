@@ -101,27 +101,6 @@ class Second_level_donut(arcade.Sprite):
         if self.center_y >= SCREEN_HEIGHT:
             self.dy = abs(self.dy) * -1
 
-#class Third_level_donut(arcade.Sprite):
- #   def __init__(self, position, velocity):
-  #      self.donuts = ["images/Boss_donut.png"]
-    #     super().__init__(donut, 1.0)
-    #    self.hp = BOSS_HP
-     #   (self.center_x, self.center_y) = position
-      #  (self.dx, self.dy) = velocity
-
-    def update(self):
-        self.center_x = self.center_x + self.dx
-        self.center_y = self.center_y + self.dy
-        if self.center_x <= 0:
-            self.dx = abs(self.dx)            
-        if self.center_x >= SCREEN_WIDTH:
-            self.dx = abs(self.dx) * -1
-        if self.center_y <= 750:
-            self.dy = abs(self.dy)
-        if self.center_y >= SCREEN_HEIGHT:
-            self.dy = abs(self.dy) * -1
-
-
 
 class Window(arcade.Window):
 
@@ -137,8 +116,6 @@ class Window(arcade.Window):
         self.set_mouse_visible(False)
 
         self.background = None
-        
-        self.boss= False
 
 
     def setup(self):
