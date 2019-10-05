@@ -193,6 +193,13 @@ class Window(arcade.Window):
             dy = 2
             donut = Third_level_donut((x,y), (dx,dy))
 
+                    
+        if random.randrange(200) == 0:
+                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
+                enemy_bullet.center_x = donut.center_x
+                enemy_bullet.top = donut.bottom
+                self.bullet_list.append(enemy_bullet)
+
             self.donut_list.append(donut)
 
 
@@ -317,13 +324,6 @@ class Window(arcade.Window):
                     self.alive = False
                 else:
                     self.alive = True
-
-        
-        if random.randrange(200) == 0:
-                enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
-                enemy_bullet.center_x = donut.center_x
-                enemy_bullet.top = donut.bottom
-                self.bullet_list.append(enemy_bullet)
 
             
         self.enemy_bullet_list.update()
