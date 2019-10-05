@@ -60,7 +60,7 @@ class Enemy_Bullet(arcade.Sprite):
             velocity: (dx, dy) tuple
             damage: int (or float)
         '''
-        super().__init__("images/bullet.png", BULLET_SCALE)
+        super().__init__("images/sprinkle.png", BULLET_SCALE)
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
         self.damage = damage
@@ -199,11 +199,11 @@ class Window(arcade.Window):
     def winner(self):
     #goal is to reach this screen and have the words appear over the normal background
 
-        arcade.draw_text(f"Congrats! You've won!", 600, 450, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Congrats! You've won!", 400, 450, arcade.color.WHITE, 60)
 
 
     def end(self):
-        arcade.draw_text(f"You lose", 600, 450, arcade.color.WHITE, 60)
+        arcade.draw_text(f"You lose", 400, 450, arcade.color.WHITE, 60)
 
 
     def setup(self):
@@ -211,6 +211,7 @@ class Window(arcade.Window):
         self.level = 1
         self.won = False
         self.died = False
+        self.alive = True
 
         #sprite lists
         self.player_list = arcade.SpriteList()
@@ -252,7 +253,7 @@ class Window(arcade.Window):
 
         arcade.draw_text(f"Level: {self.level}", 10, 45, arcade.color.WHITE, 22)
  
-        arcade.draw_text(f"ALIENS VS. DONUTS", 945, 15, arcade.color.WHITE, 22)
+        arcade.draw_text(f"ALIENS VS. DONUTS", 940, 15, arcade.color.WHITE, 22)
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
@@ -305,9 +306,20 @@ class Window(arcade.Window):
         self.bullet_list.update()
 
         self.enemy_bullet_list.update()
-        for p in self.player_list:
-            p.update()
 
+        for e in self.enemy_list:
+
+            if random.randrange(200) == 0:
+                enemy_bullet = Bullet((x,y),(0,14),BULLET_DAMAGE)
+                enemy_bullet.center_x = donut.center_x
+                enemy_bullet.angle = -180
+                enemy_bullet.top = enemy.bottom
+                self.bullet_list.append(enemy_bullet)
+
+        for bullet in self.enemy_bullet_list:
+            if bullet.top < 0:
+                bullet.kill()
+                
             damage = arcade.check_for_collision_with_list(p,self.enemy_bullet_list)
             for d in damage: 
                 p.hp = p.hp - d.damage
