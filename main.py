@@ -14,20 +14,19 @@ MARGIN = 20
 SCREEN_TITLE = "Aliens and Donuts"
 NUM_DONUTS = 10
 MOVEMENT_SPEED = 6
-INITIAL_VELOCITY = 2
 FRICTION = 0.9
 
 STARTING_LOCATION = (600,75)
 BULLET_DAMAGE = 50
 ENEMY_HP = 150
-BOSS_HP = 500
-PLAYER_HP = 1000
+BOSS_HP = 1000
+PLAYER_HP = 1250
 KILL_SCORE = 2000
 HIT_SCORE = 100
 
 PLAYER_SCALE = 1
 DONUT_SCALE = 1.25
-BOSS_SCALE = 1.25
+BOSS_SCALE = .75
 BULLET_SCALE = 0.4
 # goal of game is to move an alien around via keyboard, shooting with spacebar at sky donuts
 
@@ -52,26 +51,26 @@ class Bullet(arcade.Sprite):
         self.center_x += self.dx
         self.center_y += self.dy
 
-class Enemy_Bullet(arcade.Sprite):
-    def __init__(self, position, velocity, damage):
+#class Enemy_Bullet(arcade.Sprite):
+    #def __init__(self, position, velocity, damage):
         ''' 
         initializes the bullet
         Parameters: position: (x,y) tuple
             velocity: (dx, dy) tuple
             damage: int (or float)
         '''
-        super().__init__("images/sprinkle.png", BULLET_SCALE)
-        (self.center_x, self.center_y) = position
-        (self.dx, self.dy) = velocity
-        self.damage = damage
+        #super().__init__("images/sprinkle.png", .25)
+        #(self.center_x, self.center_y) = position
+        #(self.dx, self.dy) = velocity
+        #self.damage = damage
         #makes damage an attribute of the bullet
 
-    def update(self):
+    #def update(self):
         '''
         Moves the bullet
         '''
-        self.center_x += self.dx
-        self.center_y += self.dy
+        #self.center_x += self.dx
+        #self.center_y += self.dy
 
 class Player(arcade.Sprite):
     def __init__(self):
@@ -166,8 +165,8 @@ class Window(arcade.Window):
         for i in range(NUM_DONUTS):
             x = 120 * (i+.75)
             y = 875
-            dx = INITIAL_VELOCITY
-            dy = INITIAL_VELOCITY
+            dx = 3
+            dy = 1.5
             donut = Donut((x,y), (dx,dy))
             
             self.donut_list.append(donut) 
@@ -176,8 +175,8 @@ class Window(arcade.Window):
         for i in range(NUM_DONUTS):
             x = random.randint(MARGIN, SCREEN_WIDTH - MARGIN)
             y = 875
-            velocities_x = [3,-3]
-            velocities_y = [3,-3]
+            velocities_x = [2,-2]
+            velocities_y = [2,-2]
             dx = random.choice(velocities_x)
             dy = random.choice(velocities_y)
             donut = Second_level_donut((x,y), (dx,dy))
@@ -188,17 +187,10 @@ class Window(arcade.Window):
     def level_3(self):
         for i in range(3):
             x = 400 * (i+1.0) 
-            y = 875
-            dx = 0
-            dy = 2
+            y = 775
+            dx = 2
+            dy = 0
             donut = Third_level_donut((x,y), (dx,dy))
-
-                    
-        if random.randrange(200) == 0:
-            enemy_bullet = Enemy_Bullet((x,y),(0,14),BULLET_DAMAGE)
-            enemy_bullet.center_x = donut.center_x
-            enemy_bullet.top = donut.bottom
-            self.bullet_list.append(enemy_bullet)
 
             self.donut_list.append(donut)
 
@@ -206,11 +198,16 @@ class Window(arcade.Window):
     def winner(self):
     #goal is to reach this screen and have the words appear over the normal background
 
-        arcade.draw_text(f"Congrats! You've won!", 400, 450, arcade.color.WHITE, 60)
+        arcade.draw_text(f"You've won!", 415, 460, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Score: {self.score}", 495, 410, arcade.color.WHITE, 30)
+        arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
+
 
 
     def end(self):
-        arcade.draw_text(f"You lose", 400, 450, arcade.color.WHITE, 60)
+        arcade.draw_text(f"You lose :()", 415, 460, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Score: {self.score}", 495, 410, arcade.color.WHITE, 30)
+        arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
 
 
     def setup(self):
@@ -218,13 +215,12 @@ class Window(arcade.Window):
         self.level = 1
         self.won = False
         self.died = False
-        self.alive = True
 
         #sprite lists
         self.player_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.donut_list = arcade.SpriteList()
-        self.enemy_bullet_list = arcade.SpriteList()
+        #self.donut_bullet_list = arcade.SpriteList()
 
         #set up the player
         self.score = 0
@@ -253,7 +249,7 @@ class Window(arcade.Window):
              self.donut_list.draw()
              self.player_list.draw()
              self.bullet_list.draw()
-             self.enemy_bullet_list.draw()
+             #self.donut_bullet_list.draw()
  
         # Render the text
         arcade.draw_text(f"Score: {self.score}", 10, 15, arcade.color.WHITE, 22)
@@ -272,7 +268,7 @@ class Window(arcade.Window):
         elif key == arcade.key.SPACE:
             x = self.player.center_x
             y = self.player.center_y + 15
-            bullet = Bullet((x,y),(0,14),BULLET_DAMAGE)
+            bullet = Bullet((x,y),(0,10),BULLET_DAMAGE)
             self.bullet_list.append(bullet)
 
     def on_key_release(self, key, modifiers):
@@ -296,36 +292,51 @@ class Window(arcade.Window):
                 self.player.center_x = SCREEN_WIDTH
 
         self.donut_list.update()
-
+        
         for e in self.donut_list:
             e.update()
 
             damage = arcade.check_for_collision_with_list(e,self.bullet_list)
             for d in damage:
-                e.hp = e.hp - d.damage              
+                e.hp = e.hp - d.damage
                 d.kill()
-                if e.hp < 0:
+                if e.hp <= 0:
                     e.kill()
                     self.score = self.score + KILL_SCORE
                 else:
                     self.score = self.score + HIT_SCORE
 
         self.bullet_list.update()
+        
+        
+        #self.bullet_list.update()
+        #self.donut_bullet_list.update()
+        #if (not (self.won or self.died)): 
 
-        self.enemy_bullet_list.update()
+            #for e in self.donut_list:
 
-        for p in self.player_list:
-            damage = arcade.check_for_collision_with_list(p,self.enemy_bullet_list)
-            for d in damage: 
-                p.hp = p.hp - d.damage
-                d.kill()
-                if p.hp < 0:
-                    p.kill()
-                    self.died = True
-
+                #damage = arcade.check_for_collision_with_list(e,self.bullet_list)
+                #for d in damage:
+                    #e.hp = e.hp - d.damage              
+                    #d.kill()
+                    #if e.hp <= 0:
+                        #e.kill()
+                        #self.score = self.score + KILL_SCORE
+                    #else:
+                        #self.score = self.score + HIT_SCORE
             
-        self.enemy_bullet_list.update()
+                #if (random.randint(1, 75) == 1):
+                    #self.donut_bullet_list.append(Enemy_Bullet((e.center_x, e.center_y - 15), (0, -10), BULLET_DAMAGE))
 
+                #for p in self.player_list:
+                    #damage = arcade.check_for_collision_with_list(p,self.donut_bullet_list)
+                    #for d in damage: 
+                        #p.hp = p.hp - d.damage
+                        #d.kill()
+                        #if p.hp <= 0:
+                            #p.kill()
+                            #self.won = False
+                            
 
 
         if len(self.donut_list) == 0 and self.level == 1:
@@ -341,6 +352,8 @@ class Window(arcade.Window):
         #However I lose
         if True == False:
             self.died = True
+
+        
 
 
 def main():
