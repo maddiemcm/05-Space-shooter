@@ -151,6 +151,29 @@ class Third_level_donut(arcade.Sprite):
         if self.center_y >= SCREEN_HEIGHT:
             self.dy = abs(self.dy) * -1
 
+class Simpson(arcade.Sprite):
+    def __init__(self, position, velocity):
+        self.donuts = ["images/Homer.png"]
+        donut = self.donuts[0]
+        super().__init__(donut, BOSS_SCALE)
+        self.hp = 500
+        (self.center_x, self.center_y) = position
+        (self.dx, self.dy) = velocity
+        self.can_shoot = False
+
+    def update(self):
+        self.center_x = self.center_x + self.dx
+        self.center_y = self.center_y + self.dy
+        if self.center_x <= 0:
+            self.dx = abs(self.dx)            
+        if self.center_x >= SCREEN_WIDTH:
+            self.dx = abs(self.dx) * -1
+        if self.center_y <= 750:
+            self.dy = abs(self.dy)
+        if self.center_y >= SCREEN_HEIGHT:
+            self.dy = abs(self.dy) * -1
+
+
 
 class Window(arcade.Window):
 
@@ -248,19 +271,38 @@ class Window(arcade.Window):
 
     def winner(self):
 
-        arcade.draw_text(f"You've won!", 420, 490, arcade.color.WHITE, 60)
-        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 410, arcade.color.WHITE, 30)
-        arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
+        arcade.draw_text(f"You've won!", 420, 590, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 460, arcade.color.WHITE, 30)
+        arcade.draw_text(f"Level: {self.level}", 535, 410, arcade.color.WHITE, 30)
+
+        arcade.draw_text(f"You've unlocked a mini level! Click to play!", 335, 300, arcade.color.WHITE, 30)
 
         self.total_time = 0.0
 
 
 
     def end(self):
+
         arcade.draw_text(f"You lose :(", 440, 490, arcade.color.WHITE, 60)
         arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 410, arcade.color.WHITE, 30)
         arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
 
+        self.total_time = 0.0
+
+    def mini_game(self):
+        
+        arcade.draw_text(f"Homer isn't happy that you've been shooting down his donuts and has come to protest by eating them.", 10, 790, arcade.color.WHITE, 30)
+        arcade.draw_text(f"Hit Homer 5 times to win! Good luck!", 100, 760, arcade.color.WHITE, 30)
+        
+        for i in range(1):
+            x = 10
+            y = 775
+            dx = 6
+            dy = 0
+            donut = Simpson((x,y), (dx,dy))
+
+            self.donut_list.append(donut)
+        
         self.total_time = 0.0
 
 
@@ -352,23 +394,28 @@ class Window(arcade.Window):
             self.level += 1
             self.level_1()
 
+        if self.won == True:
+            self.level += 1
+            self.mini_game()
+
+
     def update(self, delta_time):
 
         self.total_time += delta_time
         
-        if self.total_time >= 15 and self.level == 1:
+        if self.total_time >= 10 and self.level == 1:
             self.time_penalty = self.time_penalty + 2
         
         if self.total_time >= 20 and self.level == 2:
             self.time_penalty = self.time_penalty + 2
         
-        if self.total_time >= 15 and self.level == 3:
+        if self.total_time >= 10 and self.level == 3:
             self.time_penalty = self.time_penalty + 2
 
-        if self.total_time >= 25 and self.level == 4:
+        if self.total_time >= 15 and self.level == 4:
             self.time_penalty = self.time_penalty + 2
 
-        if self.total_time >= 35 and self.level == 5:
+        if self.total_time >= 20 and self.level == 5:
             self.time_penalty = self.time_penalty + 2
       
 
