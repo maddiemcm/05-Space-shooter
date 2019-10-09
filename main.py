@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 900
-MARGIN = 20
+MARGIN = 50
 SCREEN_TITLE = "Aliens and Donuts"
 MOVEMENT_SPEED = 6
 FRICTION = 0.9
@@ -19,7 +19,7 @@ STARTING_LOCATION = (600,75)
 BULLET_DAMAGE = 50
 ENEMY_HP = 150
 BOSS_HP = 1000
-PLAYER_HP = 1250
+PLAYER_HP = 1400
 KILL_SCORE = 2000
 HIT_SCORE = 100
 
@@ -27,6 +27,7 @@ PLAYER_SCALE = 1
 DONUT_SCALE = 1.25
 BOSS_SCALE = .75
 BULLET_SCALE = 0.4
+SPRINKLE_SCALE = .15
 # goal of game is to move an alien around via keyboard, shooting with spacebar at sky donuts
 
 class Bullet(arcade.Sprite):
@@ -58,7 +59,7 @@ class Enemy_Bullet(arcade.Sprite):
             velocity: (dx, dy) tuple
             damage: int (or float)
         '''
-        super().__init__("images/sprinkle.png", .25)
+        super().__init__("images/sprinkle.png", SPRINKLE_SCALE)
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
         self.damage = damage
@@ -164,7 +165,7 @@ class Window(arcade.Window):
 
         self.background = None 
 
-        self.start = time.time()
+        self.total_time = 0.0
 
     def intro(self):
 
@@ -184,6 +185,8 @@ class Window(arcade.Window):
             
             self.donut_list.append(donut) 
 
+        self.total_time = 0.0
+
     def level_2(self):
         for i in range(20):
             x = random.randint(MARGIN, SCREEN_WIDTH - MARGIN)
@@ -196,6 +199,7 @@ class Window(arcade.Window):
 
             self.donut_list.append(donut)
 
+        self.total_time = 0.0
 
     def level_3(self):
         for i in range(1):
@@ -206,9 +210,11 @@ class Window(arcade.Window):
             donut = Third_level_donut((x,y), (dx,dy))
 
             self.donut_list.append(donut)
+        
+        self.total_time = 0.0
 
     def level_4(self):
-        for i in range(2):
+        for i in range(1):
             x = 600 * (i+1.5) 
             y = 775
             dx = 2
@@ -216,6 +222,16 @@ class Window(arcade.Window):
             donut = Third_level_donut((x,y), (dx,dy))
 
             self.donut_list.append(donut)
+        for i in range(1):
+            x = 600 * (i+1.5) 
+            y = 775
+            dx = -2
+            dy = 0
+            donut = Third_level_donut((x,y), (dx,dy))
+
+            self.donut_list.append(donut)
+        
+        self.total_time = 0.0
     
     def level_5(self):
         for i in range(3):
@@ -226,21 +242,26 @@ class Window(arcade.Window):
             donut = Third_level_donut((x,y), (dx,dy))
 
             self.donut_list.append(donut)
+        
+        self.total_time = 0.0
 
 
     def winner(self):
-    #goal is to reach this screen and have the words appear over the normal background
 
-        arcade.draw_text(f"You've won!", 415, 460, arcade.color.WHITE, 60)
-        arcade.draw_text(f"Score: {self.score}", 495, 410, arcade.color.WHITE, 30)
+        arcade.draw_text(f"You've won!", 420, 490, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 410, arcade.color.WHITE, 30)
         arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
+
+        self.total_time = 0.0
 
 
 
     def end(self):
-        arcade.draw_text(f"You lose :()", 415, 460, arcade.color.WHITE, 60)
-        arcade.draw_text(f"Score: {self.score}", 495, 410, arcade.color.WHITE, 30)
+        arcade.draw_text(f"You lose :(", 440, 490, arcade.color.WHITE, 60)
+        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 410, arcade.color.WHITE, 30)
         arcade.draw_text(f"Level: {self.level}", 535, 365, arcade.color.WHITE, 30)
+
+        self.total_time = 0.0
 
 
     def setup(self):
@@ -248,7 +269,7 @@ class Window(arcade.Window):
         self.level = 0
         self.won = False
         self.died = False
-
+    
         #sprite lists
         self.player_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
@@ -257,6 +278,7 @@ class Window(arcade.Window):
 
         #set up the player
         self.score = 0
+        self.time_penalty = 0
         self.player = Player()
         self.player_list.append(self.player)
 
@@ -270,9 +292,7 @@ class Window(arcade.Window):
         """
 
         arcade.start_render()
-        current = time.time()
-        elapsed = self.start - current 
-
+        
         arcade.draw_texture_rectangle(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
 
         if self.won:	             
@@ -283,19 +303,25 @@ class Window(arcade.Window):
             self.intro()
         else:
              # Draw all the sprites.
-             self.donut_list.draw()
-             self.player_list.draw()
-             self.bullet_list.draw()
-             self.donut_bullet_list.draw()
+            self.donut_list.draw()
+            self.player_list.draw()
+            self.bullet_list.draw()
+            self.donut_bullet_list.draw()
+            minutes = int(self.total_time) // 60
+            seconds = int(self.total_time) % 60
+            output = f"Total Time Elapsed: {minutes:02d}:{seconds:02d}"
+            arcade.draw_text(output, 890, 50, arcade.color.WHITE, 22)
  
         # Render the text
-        arcade.draw_text(f"Score: {self.score}", 10, 15, arcade.color.WHITE, 22)
+        arcade.draw_text(f"Score: {self.score}", 10, 75, arcade.color.WHITE, 22)
 
-        arcade.draw_text(f"Level: {self.level}", 10, 45, arcade.color.WHITE, 22)
+        arcade.draw_text(f"Level: {self.level}", 10, 105, arcade.color.WHITE, 22)
  
         arcade.draw_text(f"ALIENS VS. DONUTS", 940, 15, arcade.color.WHITE, 22)
-        
-        arcade.draw_text(str(-elapsed), 970, 45, arcade.color.WHITE, 22)
+
+        arcade.draw_text (f"Time penalty points: {self.time_penalty}", 10, 45, arcade.color.WHITE, 22)
+
+        arcade.draw_text (f"Player Health Points: {self.player.hp}", 10, 15, arcade.color.WHITE, 22)
 
 
     def on_key_press(self, key, modifiers):
@@ -328,6 +354,24 @@ class Window(arcade.Window):
 
     def update(self, delta_time):
 
+        self.total_time += delta_time
+        
+        if self.total_time >= 15 and self.level == 1:
+            self.time_penalty = self.time_penalty + 2
+        
+        if self.total_time >= 20 and self.level == 2:
+            self.time_penalty = self.time_penalty + 2
+        
+        if self.total_time >= 15 and self.level == 3:
+            self.time_penalty = self.time_penalty + 2
+
+        if self.total_time >= 25 and self.level == 4:
+            self.time_penalty = self.time_penalty + 2
+
+        if self.total_time >= 35 and self.level == 5:
+            self.time_penalty = self.time_penalty + 2
+      
+
         if self.player.moving_left:
             self.player.center_x = self.player.center_x - MOVEMENT_SPEED
         if self.player.center_x <= 0:
@@ -358,8 +402,8 @@ class Window(arcade.Window):
         self.donut_bullet_list.update()
 
         for e in self.donut_list:
-            if (e.can_shoot and random.random() < .10):
-                self.donut_bullet_list.append(Enemy_Bullet((e.center_x, e.center_y - 15), (0, -10), BULLET_DAMAGE))
+            if (e.can_shoot and random.random() < .05):
+                self.donut_bullet_list.append(Enemy_Bullet((e.center_x, e.center_y - 15), (0, -10), 100))
 
         damage = arcade.check_for_collision_with_list(self.player,self.donut_bullet_list)
         for d in damage: 
