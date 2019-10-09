@@ -131,13 +131,14 @@ class Second_level_donut(arcade.Sprite):
 
 class Third_level_donut(arcade.Sprite):
     def __init__(self, position, velocity):
-        self.donuts = ["images/boss.png"]
-        donut = self.donuts[0]
-        super().__init__(donut, BOSS_SCALE)
+
+        self.textures = [(100,'images/boss2.png'),(50,'images/boss3.png')]
+        super().__init__("images/boss.png", BOSS_SCALE)
         self.hp = BOSS_HP
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
-        self.can_shoot = True
+        self.can_shoot = False
+        self.which_texture = 0
 
     def update(self):
         self.center_x = self.center_x + self.dx
@@ -150,6 +151,10 @@ class Third_level_donut(arcade.Sprite):
             self.dy = abs(self.dy)
         if self.center_y >= SCREEN_HEIGHT:
             self.dy = abs(self.dy) * -1
+        for hp,texture in self.textures:
+            if self.hp == hp:
+                temp = arcade.load_texture(texture)
+                arcade.set_texture(temp)
 
 class Simpson(arcade.Sprite):
     def __init__(self, position, velocity):
@@ -272,7 +277,7 @@ class Window(arcade.Window):
     def winner(self):
 
         arcade.draw_text(f"You've won!", 420, 590, arcade.color.WHITE, 60)
-        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 460, 460, arcade.color.WHITE, 30)
+        arcade.draw_text(f"Total Score: {self.score - self.time_penalty}", 480, 460, arcade.color.WHITE, 30)
         arcade.draw_text(f"Level: {self.level}", 535, 410, arcade.color.WHITE, 30)
 
         arcade.draw_text(f"You've unlocked a mini level! Click to play!", 335, 300, arcade.color.WHITE, 30)
@@ -291,12 +296,9 @@ class Window(arcade.Window):
 
     def mini_game(self):
         
-        arcade.draw_text(f"Homer isn't happy that you've been shooting down his donuts and has come to protest by eating them.", 10, 790, arcade.color.WHITE, 30)
-        arcade.draw_text(f"Hit Homer 5 times to win! Good luck!", 100, 760, arcade.color.WHITE, 30)
-        
         for i in range(1):
             x = 10
-            y = 775
+            y = 800
             dx = 6
             dy = 0
             donut = Simpson((x,y), (dx,dy))
@@ -304,13 +306,15 @@ class Window(arcade.Window):
             self.donut_list.append(donut)
         
         self.total_time = 0.0
+        self.won = False
 
 
     def setup(self):
         
-        self.level = 0
+        self.level = 5
         self.won = False
         self.died = False
+        self.really_won = False
     
         #sprite lists
         self.player_list = arcade.SpriteList()
@@ -337,7 +341,9 @@ class Window(arcade.Window):
         
         arcade.draw_texture_rectangle(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
 
-        if self.won:	             
+        if self.level == 6 and self.won:
+            self.mini_game()
+        elif self.won:	             
             self.winner()		         
         elif self.died:	         
             self.end()
@@ -353,6 +359,10 @@ class Window(arcade.Window):
             seconds = int(self.total_time) % 60
             output = f"Total Time Elapsed: {minutes:02d}:{seconds:02d}"
             arcade.draw_text(output, 890, 50, arcade.color.WHITE, 22)
+            if self.level == 6 and self.total_time <= 15:
+                arcade.draw_text(f"Homer isn't happy that you've been shooting down his donuts", 125, 500, arcade.color.WHITE, 30)
+                arcade.draw_text(f"and has come to protest by eating them.", 275, 460, arcade.color.WHITE, 30)
+                arcade.draw_text(f"Hit Homer 5 times to win! Good luck!", 275, 410, arcade.color.WHITE, 30)
  
         # Render the text
         arcade.draw_text(f"Score: {self.score}", 10, 75, arcade.color.WHITE, 22)
@@ -401,85 +411,84 @@ class Window(arcade.Window):
 
     def update(self, delta_time):
 
-        self.total_time += delta_time
+        if not self.died:
+            self.total_time += delta_time
+            
+            if self.total_time >= 10 and self.level == 1:
+                self.time_penalty = self.time_penalty + 2
+            
+            if self.total_time >= 20 and self.level == 2:
+                self.time_penalty = self.time_penalty + 2
+            
+            if self.total_time >= 10 and self.level == 3:
+                self.time_penalty = self.time_penalty + 2
+
+            if self.total_time >= 15 and self.level == 4:
+                self.time_penalty = self.time_penalty + 2
+
+            if self.total_time >= 20 and self.level == 5:
+                self.time_penalty = self.time_penalty + 2
         
-        if self.total_time >= 10 and self.level == 1:
-            self.time_penalty = self.time_penalty + 2
-        
-        if self.total_time >= 20 and self.level == 2:
-            self.time_penalty = self.time_penalty + 2
-        
-        if self.total_time >= 10 and self.level == 3:
-            self.time_penalty = self.time_penalty + 2
 
-        if self.total_time >= 15 and self.level == 4:
-            self.time_penalty = self.time_penalty + 2
+            if self.player.moving_left:
+                self.player.center_x = self.player.center_x - MOVEMENT_SPEED
+            if self.player.center_x <= 0:
+                    self.player.center_x = 0
+            if self.player.moving_right:
+                self.player.center_x = self.player.center_x + MOVEMENT_SPEED
+            if self.player.center_x >= SCREEN_WIDTH:
+                    self.player.center_x = SCREEN_WIDTH
 
-        if self.total_time >= 20 and self.level == 5:
-            self.time_penalty = self.time_penalty + 2
-      
+            self.donut_list.update()
+            
+            for e in self.donut_list:
+                e.update()
 
-        if self.player.moving_left:
-            self.player.center_x = self.player.center_x - MOVEMENT_SPEED
-        if self.player.center_x <= 0:
-                self.player.center_x = 0
-        if self.player.moving_right:
-            self.player.center_x = self.player.center_x + MOVEMENT_SPEED
-        if self.player.center_x >= SCREEN_WIDTH:
-                self.player.center_x = SCREEN_WIDTH
+                damage = arcade.check_for_collision_with_list(e,self.bullet_list)
+                for d in damage:
+                    e.hp = e.hp - d.damage
+                    d.kill()
+                    if e.hp <= 0:
+                        e.kill()
+                        self.score = self.score + KILL_SCORE
+                    else:
+                        self.score = self.score + HIT_SCORE
 
-        self.donut_list.update()
-        
-        for e in self.donut_list:
-            e.update()
+            self.bullet_list.update()
+            
+            
+            self.donut_bullet_list.update()
 
-            damage = arcade.check_for_collision_with_list(e,self.bullet_list)
-            for d in damage:
-                e.hp = e.hp - d.damage
+            for e in self.donut_list:
+                if (e.can_shoot and random.random() < .05):
+                    self.donut_bullet_list.append(Enemy_Bullet((e.center_x, e.center_y - 15), (0, -10), 100))
+
+            damage = arcade.check_for_collision_with_list(self.player,self.donut_bullet_list)
+            for d in damage: 
+                self.player.hp = self.player.hp - d.damage
                 d.kill()
-                if e.hp <= 0:
-                    e.kill()
-                    self.score = self.score + KILL_SCORE
-                else:
-                    self.score = self.score + HIT_SCORE
+                if self.player.hp <= 0:
+                    self.player.kill()
+                    self.died = True
 
-        self.bullet_list.update()
-        
-        
-        self.donut_bullet_list.update()
+                                
 
-        for e in self.donut_list:
-            if (e.can_shoot and random.random() < .05):
-                self.donut_bullet_list.append(Enemy_Bullet((e.center_x, e.center_y - 15), (0, -10), 100))
+            if len(self.donut_list) == 0 and self.level == 1:
+                self.level += 1
+                self.level_2()
+            elif len(self.donut_list) == 0 and self.level == 2:
+                self.level += 1
+                self.level_3()
+            elif len(self.donut_list) == 0 and self.level == 3:
+                self.level += 1
+                self.level_4()
+            elif len(self.donut_list) == 0 and self.level == 4:
+                self.level += 1
+                self.level_5()
 
-        damage = arcade.check_for_collision_with_list(self.player,self.donut_bullet_list)
-        for d in damage: 
-            self.player.hp = self.player.hp - d.damage
-            d.kill()
-            if self.player.hp <= 0:
-                self.player.kill()
-                self.died = True
-                            
+            elif len(self.donut_list) == 0 and self.level == 5:
+                self.won = True
 
-        if len(self.donut_list) == 0 and self.level == 1:
-            self.level += 1
-            self.level_2()
-        elif len(self.donut_list) == 0 and self.level == 2:
-            self.level += 1
-            self.level_3()
-        elif len(self.donut_list) == 0 and self.level == 3:
-            self.level += 1
-            self.level_4()
-        elif len(self.donut_list) == 0 and self.level == 4:
-            self.level += 1
-            self.level_5()
-
-        elif len(self.donut_list) == 0 and self.level == 5:
-            self.won = True
-
-        #However I lose
-        if True == False:
-            self.died = True
 
         
 
