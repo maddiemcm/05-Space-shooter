@@ -25,7 +25,7 @@ HIT_SCORE = 100
 
 PLAYER_SCALE = 1
 DONUT_SCALE = 1.25
-BOSS_SCALE = .75
+BOSS_SCALE = .50
 BULLET_SCALE = 0.4
 SPRINKLE_SCALE = .15
 # goal of game is to move an alien around via keyboard, shooting with spacebar at sky donuts
@@ -133,12 +133,12 @@ class Third_level_donut(arcade.Sprite):
     def __init__(self, position, velocity):
 
         self.textures = [(100,'images/boss2.png'),(50,'images/boss3.png')]
+        
         super().__init__("images/boss.png", BOSS_SCALE)
         self.hp = BOSS_HP
         (self.center_x, self.center_y) = position
         (self.dx, self.dy) = velocity
-        self.can_shoot = False
-        self.which_texture = 0
+        self.can_shoot = True
 
     def update(self):
         self.center_x = self.center_x + self.dx
@@ -155,6 +155,7 @@ class Third_level_donut(arcade.Sprite):
             if self.hp == hp:
                 temp = arcade.load_texture(texture)
                 arcade.set_texture(temp)
+
 
 class Simpson(arcade.Sprite):
     def __init__(self, position, velocity):
@@ -298,8 +299,8 @@ class Window(arcade.Window):
         
         for i in range(1):
             x = 10
-            y = 800
-            dx = 6
+            y = 750
+            dx = 10
             dy = 0
             donut = Simpson((x,y), (dx,dy))
 
@@ -311,7 +312,7 @@ class Window(arcade.Window):
 
     def setup(self):
         
-        self.level = 5
+        self.level = 0
         self.won = False
         self.died = False
         self.really_won = False
@@ -360,9 +361,9 @@ class Window(arcade.Window):
             output = f"Total Time Elapsed: {minutes:02d}:{seconds:02d}"
             arcade.draw_text(output, 890, 50, arcade.color.WHITE, 22)
             if self.level == 6 and self.total_time <= 15:
-                arcade.draw_text(f"Homer isn't happy that you've been shooting down his donuts", 125, 500, arcade.color.WHITE, 30)
-                arcade.draw_text(f"and has come to protest by eating them.", 275, 460, arcade.color.WHITE, 30)
-                arcade.draw_text(f"Hit Homer 5 times to win! Good luck!", 275, 410, arcade.color.WHITE, 30)
+                arcade.draw_text(f"Homer isn't happy that you've been shooting down his donuts", 125, 530, arcade.color.WHITE, 30)
+                arcade.draw_text(f"and has come to protest by eating them and shooting you", 140, 470, arcade.color.WHITE, 30)
+                arcade.draw_text(f"Hit Homer 5 times to win! Good luck!", 300, 400, arcade.color.WHITE, 30)
  
         # Render the text
         arcade.draw_text(f"Score: {self.score}", 10, 75, arcade.color.WHITE, 22)
@@ -439,23 +440,41 @@ class Window(arcade.Window):
             if self.player.center_x >= SCREEN_WIDTH:
                     self.player.center_x = SCREEN_WIDTH
 
+            
             self.donut_list.update()
             
-            for e in self.donut_list:
-                e.update()
+            if not self.level == 6:
 
-                damage = arcade.check_for_collision_with_list(e,self.bullet_list)
-                for d in damage:
-                    e.hp = e.hp - d.damage
-                    d.kill()
-                    if e.hp <= 0:
-                        e.kill()
-                        self.score = self.score + KILL_SCORE
-                    else:
-                        self.score = self.score + HIT_SCORE
+                for e in self.donut_list:
+                    e.update()
+
+                    damage = arcade.check_for_collision_with_list(e,self.bullet_list)
+                    for d in damage:
+                        e.hp = e.hp - d.damage
+                        d.kill()
+                        if e.hp <= 0:
+                            e.kill()
+                            self.score = self.score + KILL_SCORE
+                        else:
+                            self.score = self.score + HIT_SCORE
 
             self.bullet_list.update()
+
+            if self.level == 6:
             
+                for e in self.donut_list:
+                    e.update()
+
+                    damage = arcade.check_for_collision_with_list(e,self.bullet_list)
+                    for d in damage:
+                        e.hp = e.hp - d.damage
+                        d.kill()
+                        if e.hp <= 0:
+                            e.kill()
+                            self.score = self.score + 10000
+
+            self.bullet_list.update()
+                
             
             self.donut_bullet_list.update()
 
@@ -488,9 +507,8 @@ class Window(arcade.Window):
 
             elif len(self.donut_list) == 0 and self.level == 5:
                 self.won = True
+                
 
-
-        
 
 
 def main():
