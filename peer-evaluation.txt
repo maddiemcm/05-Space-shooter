@@ -1,0 +1,37 @@
+Name: Rachel Gentry
+Date: 10/19/2019
+Project: 05 SPACE SHOOTER
+Peer's repository: https://github.com/maddiemcm/05-Space-shooter.git
+
+
+
+What is something you learned by reviewing your peer's project?
+- I learned about time penalties. I haven't seen that used before. I feel like I was aware of it, but had never seen it in practice.
+ 
+
+What is something you saw in your peer's project that you would like to apply to your own programming projects?
+- I love the attention to detail, the way they took advantage of the assets, and the movement of the "enemies." I would like to try to include more movement to my own projects to give it a more realistic feel.
+ 
+
+What suggestions would you have for your peer to improve his/her code?
+- This isn't a problem in and of itself, but perhaps just a preference. I think the game would have been a little more enjoyable if the player speed was a little higher. 
+ 
+
+What could have been clearer or better commented?
+- I think that the levels could have been clearer. I looked through the whole code before I understood the purpose. 
+ 
+
+Was there anything in the code that was confusing to you? If so, what?
+- The donut levels were somewhat confusing to me. 
+ 
+
+Does the repository contain an appropriate LICENSE?
+-Yes
+ 
+
+What is something he/she could add to the README.md to make it more descriptive?
+-If someone tries playing the game before reading the code, or if they didn't understand code, they might have trouble knowing what the controls are. I would recommend describing the controls!
+ 
+
+Pay a compliment to your peer based on the quality of his/her code.
+-I was blown away by the effort put into the design! You're going to make a fantastic game designer!
